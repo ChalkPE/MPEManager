@@ -41,16 +41,32 @@ public class PEAnalyzer {
 	private boolean cached = false;
 	private boolean isAnalyzing = false;
 
+	public PEAnalyzer(String filePath, String cacheDirectoryPath) throws IOException {
+		this(new File(filePath),new File(cacheDirectoryPath), false);
+	}
+	
 	public PEAnalyzer(String filePath, String cacheDirectoryPath, boolean includeContent) throws IOException {
 		this(new File(filePath),new File(cacheDirectoryPath), includeContent);
+	}
+	
+	public PEAnalyzer(String filePath, File cacheDirectory) throws IOException {
+		this(new File(filePath), cacheDirectory, false);
 	}
 	
 	public PEAnalyzer(String filePath, File cacheDirectory, boolean includeContent) throws IOException {
 		this(new File(filePath), cacheDirectory, includeContent);
 	}
 	
+	public PEAnalyzer(File file, String cacheDirectoryPath) throws IOException {
+		this(file, new File(cacheDirectoryPath), false);
+	}
+	
 	public PEAnalyzer(File file, String cacheDirectoryPath, boolean includeContent) throws IOException {
 		this(file, new File(cacheDirectoryPath), includeContent);
+	}
+	
+	public PEAnalyzer(File file, File cacheDirectory) throws IOException {
+		this(file, cacheDirectory, false);
 	}
 	
 	public PEAnalyzer(File file, File cacheDirectory, boolean includeContent) throws IOException {
@@ -94,7 +110,7 @@ public class PEAnalyzer {
 						load(file);
 					}
 				}
-				System.out.println("Cached! time: " + (System.currentTimeMillis() - startTime));
+				System.out.println("Cached! time: " + (System.currentTimeMillis() - startTime) + ", size: " + lines.size());
 			}
 		}.start();
 	}
@@ -133,8 +149,8 @@ public class PEAnalyzer {
 					continue;
 				}
 				
-				Matcher m = CONTENT_LINE.matcher(read + System.lineSeparator());
-				if(this.includeContent && m.matches()){
+				Matcher m = null;
+				if(this.includeContent && (m = CONTENT_LINE.matcher(read + System.lineSeparator())).matches()){
 					this.put(new ContentLine(new UnsignedInteger(m.group(1)), m.group(2), m.group(3), m.groupCount() > 3 ? m.group(4) : ""));
 				}else{
 					m = FUNCTION_LINE.matcher(read);
@@ -144,7 +160,7 @@ public class PEAnalyzer {
 				}
 			}
 			this.cached = true;
-			System.out.println("Analyzed! time: " + (System.currentTimeMillis() - startTime));
+			System.out.println("Analyzed! time: " + (System.currentTimeMillis() - startTime) + ", size: " + lines.size());
 		}catch(IOException e){
 			e.printStackTrace();
 		}finally{

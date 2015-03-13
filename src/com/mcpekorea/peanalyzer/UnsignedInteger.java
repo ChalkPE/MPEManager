@@ -40,6 +40,15 @@ public class UnsignedInteger implements Serializable{
 		return ((long) unsignedValue) + 1 + Integer.MAX_VALUE;
 	}
 	
+	public File getFile(File cacheDirectory){
+		String str = this.toString();
+		
+		File subdirectory = new File(cacheDirectory, str.substring(0, 4));
+		subdirectory.mkdirs();
+		
+		return new File(subdirectory, str.substring(4));
+	}
+	
 	@Override
 	public boolean equals(Object o){
 		return o instanceof UnsignedInteger ? ((UnsignedInteger) o).getUnsignedValue() == this.unsignedValue : false;
@@ -57,14 +66,5 @@ public class UnsignedInteger implements Serializable{
 	@Override
 	public int hashCode(){
 		return unsignedValue >>> 4;
-	}
-	
-	public File getFile(File cacheDirectory){
-		String str = this.toString();
-		
-		File subdirectory = new File(cacheDirectory, str.substring(0, 4));
-		subdirectory.mkdirs();
-		
-		return new File(subdirectory, str.substring(4));
 	}
 }
