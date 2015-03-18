@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionLine extends OffsetLine {
+	private static final long serialVersionUID = 5087202240516751185L;
+	
 	private final String function;
 	private List<ContentLine> children;
 	
-	public FunctionLine(String string, String offset, String function){
-		super(string, offset);
+	public FunctionLine(int lineNumber, String string, String offset, String function){
+		super(lineNumber, string, offset);
 		this.function = function;
 		
 		this.children = new ArrayList<ContentLine>();

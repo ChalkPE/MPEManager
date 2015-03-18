@@ -1,5 +1,6 @@
 package com.mcpekorea.mpemanager;
 
+import java.io.Closeable;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -10,7 +11,7 @@ import com.mcpekorea.mpemanager.wrapper.ContentLine;
 import com.mcpekorea.mpemanager.wrapper.FunctionLine;
 import com.mcpekorea.mpemanager.wrapper.Line;
 
-public class MPEReader {
+public class MPEReader implements Closeable {
 	public static Pattern FUNCTION_LINE = Pattern.compile("([0-9a-f]{8}) (<.*>):");
 	public static Pattern CONTENT_LINE = Pattern.compile(" {2}([0-9a-f]{6}):\t(.*?)\t(.*?)(?:\t; (.*))?$", Pattern.MULTILINE);
 	
@@ -31,12 +32,12 @@ public class MPEReader {
 		}
 		
 		if(string.trim().length() == 0){
-			return new Line("");
+			return new Line(reader.getLineNumber(), "");
 		}
 		
 		m = CONTENT_LINE.matcher(string);
 		if(m.matches()){
-			ContentLine contentLine = new ContentLine(string, m.group(1), m.group(2), m.group(3), m.groupCount() > 3 ? m.group(4) : null);
+			ContentLine contentLine = new ContentLine(reader.getLineNumber(), string, m.group(1), m.group(2), m.group(3), m.groupCount() > 3 ? m.group(4) : null);
 			contentLine.setParent(current);
 			current.addChild(contentLine);
 			
@@ -45,10 +46,15 @@ public class MPEReader {
 		
 		m = FUNCTION_LINE.matcher(string);
 		if(m.matches()){
-			current = new FunctionLine(string, m.group(1), m.group(2));
+			current = new FunctionLine(reader.getLineNumber(), string, m.group(1), m.group(2));
 			return current;
 		}
 		
-		return new Line(string);
+		return new Line(reader.getLineNumber(), string);
+	}
+
+	@Override
+	public void close() throws IOException {
+		this.reader.close();
 	}
 }
